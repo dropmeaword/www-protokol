@@ -23,9 +23,10 @@
 			/* navigation */
 			#navbar {
 				position: absolute;
-				top: 75%;
+				top: 82%;
 				width: 100%;
 				padding: 5px;				
+				/*height: 60px;*/				
 				margin-left: auto;
     			margin-right: auto;
     			background: #202020;
@@ -40,6 +41,7 @@
 				list-style-type: none;
 				text-align: center;
 				overflow: hidden;
+				margin: 5px 0 5px 0;
 			}
 
 			li {
@@ -52,9 +54,15 @@
     			text-align: center;
 			}
 
+			li.link {
+				padding-left: 40px;
+			}
+
 			a {
+				padding: 0;
 				font-family:"Roboto Condensed";
 				color: #0080ff;
+				line-height: 0.90em;
 			}
 
 			a:link {
@@ -95,9 +103,9 @@
 		<div id="navbar">
 			<ul>
 				<li>protokol</li>
-				<li><a href="#">what</a></li>
-				<li><a href="#">where</a></li>
-				<li><a href="#">when</a></li>
+				<li class="link"><a href="#">what</a></li>
+				<li class="link"><a href="#">where</a></li>
+				<li class="link"><a href="#">when</a></li>
 			</ul>
 		</div>
 
@@ -106,36 +114,21 @@
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 			var container, stats;
-
 			var camera, scene, renderer, composer;
-
 			var effectFXAA;
 
 			var mesh;
 			var glitchPass;
 
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
 			init();
 			animate();
 
-			function init() {
-
-				container = document.getElementById( 'container' );
-
-				camera = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 1, 3500 );
-				camera.position.z = 800;
-
-				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
-				scene.add( new THREE.AmbientLight( 0x444444 ) );
-
-				var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
-				light1.position.set( 1, 1, 1 );
-				scene.add( light1 );
-
-				var light2 = new THREE.DirectionalLight( 0xffffff, 1.5 );
-				light2.position.set( 0, -1, 0 );
-				scene.add( light2 );
-
+			function init_mesh() {
 				//
 
 				var triangles = 80000;
@@ -259,6 +252,30 @@
 				} );
 
 				mesh = new THREE.Mesh( geometry, material );
+				return mesh;
+			}
+
+			function init() {
+				container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 1, 3500 );
+				camera.position.z = 600; // 800 was nice
+
+				scene = new THREE.Scene();
+				scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
+				scene.add( new THREE.AmbientLight( 0x444444 ) );
+
+				var light1 = new THREE.DirectionalLight( 0xffffff, 0.5 );
+				light1.position.set( 1, 1, 1 );
+				scene.add( light1 );
+
+				var light2 = new THREE.DirectionalLight( 0xffffff, 1.5 );
+				light2.position.set( 0, -1, 0 );
+				scene.add( light2 );
+
+				// create mesh and add it to scene
+
+				mesh = init_mesh();
 				scene.add( mesh );
 
 				//
@@ -273,8 +290,6 @@
 				renderer.gammaOutput = true;
 
 				container.appendChild( renderer.domElement );
-
-				//
 
 				// postprocessing
 				var renderModel = new THREE.RenderPass( scene, camera );
@@ -304,6 +319,7 @@
 				composer.addPass( effectCopy );
 
 				window.addEventListener( 'resize', onWindowResize, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 			}
 
 			function onWindowResize() {
@@ -316,28 +332,34 @@
 				composer.reset();
 			}
 
-			//
+
+			function onDocumentMouseMove( event ) {
+				mouseX = ( event.clientX - windowHalfX );
+				mouseY = ( event.clientY - windowHalfY );
+			}
+
 
 			function animate() {
-
 				requestAnimationFrame( animate );
-
 				render();
 				//stats.update();
 			}
 
 			function render() {
-
 				var time = Date.now() * 0.001;
 
-				mesh.rotation.x = time * 0.00085;
+				camera.position.x += ( mouseX - camera.position.x ) * .05;
+				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+
+				camera.lookAt( scene.position );
+
+				mesh.rotation.x = time * 0.0025;
 				mesh.rotation.y = time * 0.00075;
 
 				renderer.clear();
 				composer.render();
 				//renderer.render( scene, camera );
 			}
-
 		</script>
 
 	</body>
