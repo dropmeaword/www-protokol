@@ -128,22 +128,19 @@
 			init();
 			animate();
 
-			function init_mesh() {
-				//
-
-				var triangles = 80000;
+			function gen_mesh(density) {
 				var geometry = new THREE.BufferGeometry();
 
-				var indices = new Uint32Array( triangles * 3 );
+				var indices = new Uint32Array( density * 3 );
 				for ( var i = 0; i < indices.length; i ++ ) {
 
 					indices[ i ] = i;
 
 				}
 
-				var positions = new Float32Array( triangles * 3 * 3 );
-				var normals = new Float32Array( triangles * 3 * 3 );
-				var colors = new Float32Array( triangles * 3 * 3 );
+				var positions = new Float32Array( density * 3 * 3 );
+				var normals = new Float32Array( density * 3 * 3 );
+				var colors = new Float32Array( density * 3 * 3 );
 
 				var color = new THREE.Color();
 
@@ -275,7 +272,7 @@
 
 				// create mesh and add it to scene
 
-				mesh = init_mesh();
+				mesh = gen_mesh( 90000 );
 				scene.add( mesh );
 
 				//
